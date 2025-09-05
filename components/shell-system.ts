@@ -1,81 +1,77 @@
+/**
+ * @fileoverview Shell system implementation for terminal
+ * @version 1.0.0
+ */
+
+/**
+ * Available shell types
+ */
 export type ShellType = "bash" | "zsh" | "fish" | "powershell"
 
+/**
+ * Shell configuration interface
+ */
 export interface ShellConfig {
+  /** Display name of the shell */
   name: string
+  /** Prompt character/string */
   prompt: string
+  /** Path to configuration file */
   configFile: string
+  /** Command aliases */
   aliases: { [key: string]: string }
+  /** Shell functions */
   functions: { [key: string]: string }
+  /** Environment variables */
   variables: { [key: string]: string }
 }
 
+/**
+ * Shell system for managing different shell environments
+ * Supports bash, zsh, fish, and PowerShell with their respective configurations
+ */
 export class ShellSystem {
   private currentShell: ShellType = "bash"
-  private shells: { [key in ShellType]: ShellConfig } = {
-    bash: {
-      name: "Bash",
-      prompt: "$",
-      configFile: "~/.bashrc",
-      aliases: {},
-      functions: {},
-      variables: {
-        PS1: "\\u@\\h:\\w\\$ ",
-        PATH: "/usr/local/bin:/usr/bin:/bin",
-        HOME: "/home/user",
-        SHELL: "/bin/bash",
-      },
-    },
-    zsh: {
-      name: "Zsh",
-      prompt: "%",
-      configFile: "~/.zshrc",
-      aliases: {},
-      functions: {},
-      variables: {
-        PS1: "%n@%m:%~%# ",
-        PATH: "/usr/local/bin:/usr/bin:/bin",
-        HOME: "/home/user",
-        SHELL: "/bin/zsh",
-      },
-    },
-    fish: {
-      name: "Fish",
-      prompt: ">",
-      configFile: "~/.config/fish/config.fish",
-      aliases: {},
-      functions: {},
-      variables: {
-        PATH: "/usr/local/bin /usr/bin /bin",
-        HOME: "/home/user",
-        SHELL: "/usr/bin/fish",
-      },
-    },
-    powershell: {
-      name: "PowerShell",
-      prompt: "PS>",
-      configFile: "$PROFILE",
-      aliases: {},
-      functions: {},
-      variables: {
-        PSModulePath: "C:\\Program Files\\PowerShell\\Modules",
-        HOME: "C:\\Users\\user",
-        SHELL: "pwsh",
-      },
-    },
+  private shells: { [key in ShellType]: ShellConfig }
+
+  /**
+   * Initialize shell system with default configurations
+   */
+  constructor() {
+    this.shells = this.createDefaultShells()
   }
 
+  /**
+   * Get the currently active shell type
+   * @returns Current shell type
+   */
   getCurrentShell(): ShellType {
     return this.currentShell
   }
 
+  /**
+   * Set the active shell
+   * @param shell Shell type to activate
+   */
   setShell(shell: ShellType): void {
-    this.currentShell = shell
+    if (this.shells[shell]) {
+      this.currentShell = shell
+    }
   }
 
+  /**
+   * Get configuration for the current shell
+   * @returns Current shell configuration
+   */
   getShellConfig(): ShellConfig {
     return this.shells[this.currentShell]
   }
 
+  /**
+   * Generate shell prompt for current directory
+   * @param currentPath Current directory path
+   * @returns Formatted prompt string
+   */
   getPrompt(currentPath: string): string {
     const config = this.getShellConfig()
     const username = "user"
@@ -95,6 +91,10 @@ export class ShellSystem {
     }
   }
 
+  /**
+   * Load and parse shell configuration file
+   * @param fileContent Content of the configuration file
+   */
   loadConfigFile(fileContent: string): void {
     const config = this.shells[this.currentShell]
     const lines = fileContent.split("\n")
@@ -135,6 +135,11 @@ export class ShellSystem {
     }
   }
 
+  /**
+   * Expand command alias if it exists
+   * @param command Command to expand
+   * @returns Expanded command or original if no alias found
+   */
   expandAlias(command: string): string {
     const config = this.getShellConfig()
     const parts = command.split(" ")
@@ -148,14 +153,28 @@ export class ShellSystem {
     return command
   }
 
+  /**
+   * Get environment variable value
+   * @param name Variable name
+   * @returns Variable value or undefined if not found
+   */
   getVariable(name: string): string | undefined {
     return this.shells[this.currentShell].variables[name]
   }
 
+  /**
+   * Set environment variable
+   * @param name Variable name
+   * @param value Variable value
+   */
   setVariable(name: string, value: string): void {
     this.shells[this.currentShell].variables[name] = value
   }
 
+  /**
+   * Get default configuration content for current shell
+   * @returns Default configuration file content
+   */
   getDefaultConfigContent(): string {
     switch (this.currentShell) {
       case "bash":
@@ -272,6 +291,66 @@ Write-Host "PowerShell configuration loaded" -ForegroundColor Green`
 
       default:
         return ""
+    }
+  }
+
+  /**
+   * Create default shell configurations
+   * @returns Shell configurations object
+   * @private
+   */
+  private createDefaultShells(): { [key in ShellType]: ShellConfig } {
+    return {
+      bash: {
+        name: "Bash",
+        prompt: "$",
+        configFile: "~/.bashrc",
+        aliases: {},
+        functions: {},
+        variables: {
+          PS1: "\\u@\\h:\\w\\$ ",
+          PATH: "/usr/local/bin:/usr/bin:/bin",
+          HOME: "/home/user",
+          SHELL: "/bin/bash",
+        },
+      },
+      zsh: {
+        name: "Zsh",
+        prompt: "%",
+        configFile: "~/.zshrc",
+        aliases: {},
+        functions: {},
+        variables: {
+          PS1: "%n@%m:%~%# ",
+          PATH: "/usr/local/bin:/usr/bin:/bin",
+          HOME: "/home/user",
+          SHELL: "/bin/zsh",
+        },
+      },
+      fish: {
+        name: "Fish",
+        prompt: ">",
+        configFile: "~/.config/fish/config.fish",
+        aliases: {},
+        functions: {},
+        variables: {
+          PATH: "/usr/local/bin /usr/bin /bin",
+          HOME: "/home/user",
+          SHELL: "/usr/bin/fish",
+        },
+      },
+      powershell: {
+        name: "PowerShell",
+        prompt: "PS>",
+        configFile: "$PROFILE",
+        aliases: {},
+        functions: {},
+        variables: {
+          PSModulePath: "C:\\Program Files\\PowerShell\\Modules",
+          HOME: "C:\\Users\\user",
+          SHELL: "pwsh",
+        },
+      },
     }
   }
 }

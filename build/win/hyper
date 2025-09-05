@@ -22,4 +22,3 @@ else
 fi
 ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "$@"
 exit $?
-

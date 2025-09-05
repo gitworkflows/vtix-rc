@@ -18,7 +18,7 @@ After the first run, Hyper, in dev mode, will have created a new `plugins` direc
 Go to your recently created `<repository_root>/plugins/local` directory and create/clone your plugin repo. An even better method on macOS/Linux is to add a symlink to your plugin directory.
 
 Edit your dev config file, and add your plugin name (directory name in your `local` directory) in the `localPlugins` array.
-```js
+\`\`\`js
 module.exports = {
   config: {
     ...
@@ -27,7 +27,7 @@ module.exports = {
   localPlugins: ['hyper-awesome-plugin'],
   ...
 }
-```
+\`\`\`
 
 ### Running your plugin
 To load, your plugin should expose at least one API method. All possible methods are listed [here](https://github.com/vercel/hyper/blob/canary/app/plugins/extensions.ts).
@@ -44,7 +44,7 @@ If there's any missing, let us know or submit a PR to document it!
 You can decorate almost all Hyper components with a Higher-Order Component (HOC). To understand their architecture, the easiest way is to use React dev-tools to dig in to their hierarchy.
 
 Multiple plugins can decorate the same Hyper component. Thus, `Component` passed as first argument to your decorator function could possibly not be an original Hyper component but a HOC of a previous plugin. If you need to retrieve a reference to a real Hyper component, you can pass down a `onDecorated` handler.
-```js
+\`\`\`js
 exports.decorateTerms = (Terms, {React}) => {
   return class extends React.Component {
     constructor(props, context) {
@@ -70,7 +70,7 @@ exports.decorateTerms = (Terms, {React}) => {
       // <Terms onDecorated={this.onDecorated} />
     }
   }
-```
+\`\`\`
 :warning: Note that you have to execute `this.props.onDecorated` to not break the handler chain. Without this, you could break other plugins that decorate the same component.
 
 ### Keymaps
@@ -78,7 +78,7 @@ If you want to add some keymaps, you need to do 2 things:
 
 #### Declare your key bindings
 Use the `decorateKeymaps` API handler to modify existing keymaps and add yours with the following format `command: hotkeys`.
-```js
+\`\`\`js
 // Adding Keymaps
 exports.decorateKeymaps = keymaps => {
   const newKeymaps = {
@@ -87,12 +87,12 @@ exports.decorateKeymaps = keymaps => {
   }
   return Object.assign({}, keymaps, newKeymaps);
 }
-```
+\`\`\`
 The command name can be whatever you want, but the following is better to respect the default naming convention: `<context>:<action>`.
 Hotkeys are composed by [Mousetrap supported keys](https://craig.is/killing/mice#keys).
 
 **Bonus feature**: if your command ends with `:prefix`, it would mean that you want to use this command with an additional digit to the command. Then Hyper will create all your commands under the hood. For example, this keymap `'pane:hide:prefix': 'ctrl+shift'` will automatically generate the following:
-```
+\`\`\`
 {
   'pane:hide:1': 'ctrl+shift+1',
   'pane:hide:2': 'ctrl+shift+2',
@@ -100,7 +100,7 @@ Hotkeys are composed by [Mousetrap supported keys](https://craig.is/killing/mice
   'pane:hide:8': 'ctrl+shift+8',
   'pane:hide:last': 'ctrl+shift+9'
 }
-```
+\`\`\`
 Notice that `9` has been replaced by `last` because most of the time this is handy if you have more than 9 items.
 
 
@@ -108,7 +108,7 @@ Notice that `9` has been replaced by `last` because most of the time this is han
 ##### Renderer/Window
 Most of time, you'll want to execute some sort of handler in context of the renderer, like dispatching a Redux action.
 To trigger these handlers, you'll have to register them with the `registerCommands` Terms method.
-```js
+\`\`\`js
 this.terms.registerCommands({
   'pane:maximize': e => {
     this.props.onMaximizePane();
@@ -116,23 +116,23 @@ this.terms.registerCommands({
     e.preventDefault();
   }
 })
-```
+\`\`\`
 
 ##### Main process
 If there is no handler in the renderer for an existing command, an `rpc` message is emitted.
 If you want to execute a handler in main process you have to subscribe to a message, for example:
-```js
+\`\`\`js
 rpc.on('command pane:snapshot', () => {
   /* Awesome snapshot feature */
 });
-```
+\`\`\`
 
 ### Menu
 Your plugin can expose a `decorateMenu` function to modify the Hyper menu template.
 Check the [Electron documentation](https://electronjs.org/docs/api/menu-item) for more details about the different menu item types/options available.
 
 Be careful, a click handler will be executed on the main process. If you need to trigger a handler in the render process you need to use an `rpc` message like this:
-```js
+\`\`\`js
 exports.decorateMenu = (menu) => {
   debug('decorateMenu');
   const isMac = process.platform === 'darwin';
@@ -171,11 +171,11 @@ exports.decorateTerms = (Terms, { React }) => {
     }
   }
 }
-```
+\`\`\`
 
 ### Cursor
 If your plugin needs to know cursor position/size, it can decorate the Term component and pass a handler. This handler will be called with each cursor move while passing back all information about the cursor.
-```js
+\`\`\`js
 exports.decorateTerm = (Term, { React, notify }) => {
   // Define and return our higher order component.
   return class extends React.Component {
@@ -188,16 +188,16 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
   }
 }
-```
+\`\`\`
 
 ### Require Electron
 Hyper doesn't provide a reference to electron. However plugins can directly require electron.
 
-```js
+\`\`\`js
 const electron = require('electron')
 // or
 const { dialog, Menu } = require('electron')
-```
+\`\`\`
 
 This is needed in order to allow show/hide to have proper return of focus.
 

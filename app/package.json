@@ -9,9 +9,7 @@
     "email": "team@zeit.co"
   },
   "repository": "zeit/hyper",
-  "scripts": {
-    "postinstall": "npx patch-package"
-  },
+  "scripts": {},
   "dependencies": {
     "@babel/parser": "7.24.4",
     "@electron/remote": "2.1.2",
